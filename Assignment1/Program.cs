@@ -37,7 +37,7 @@ namespace Assignment1
                 StreamWriter w = pr.w;
                 string rootfolder = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin"));
                 String fileDir = rootfolder + "Sample Data/";
-                Console.WriteLine("root folder " + rootfolder);
+                log.Log("root folder " + rootfolder,w);
 
                 String outputDir = rootfolder + "output/";
                 if (!Directory.Exists(outputDir))
@@ -52,7 +52,7 @@ namespace Assignment1
 
 
 
-                var sw = OpenStream(resultFilepath);
+                StreamWriter sw = pr.OpenStream(resultFilepath);
                 log.Log("writing header into file ", w);
                 sw.WriteLine("First Name,Last Name,Street Number,Street,City,Province,Postal Code,Country,Phone Number,email Address,File Date");
 
@@ -224,11 +224,11 @@ namespace Assignment1
 
 
         }
-        static StreamWriter OpenStream(string path)
+         StreamWriter OpenStream(string path)
         {
             if (path is null)
             {
-                Console.WriteLine("You did not supply a file path.");
+                log.Log("You did not supply a file path.",w);
                 return null;
             }
 
@@ -239,36 +239,36 @@ namespace Assignment1
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine("The file or directory cannot be found.");
+                log.Log("The file or directory cannot be found.",w);
             }
             catch (DirectoryNotFoundException)
             {
-                Console.WriteLine("The file or directory cannot be found.");
+                log.Log("The file or directory cannot be found.",w);
             }
             catch (DriveNotFoundException)
             {
-                Console.WriteLine("The drive specified in 'path' is invalid.");
+                log.Log("The drive specified in 'path' is invalid.",w);
             }
             catch (PathTooLongException)
             {
-                Console.WriteLine("'path' exceeds the maxium supported path length.");
+                log.Log("'path' exceeds the maxium supported path length.",w);
             }
             catch (UnauthorizedAccessException)
             {
-                Console.WriteLine("You do not have permission to create this file.");
+                log.Log("You do not have permission to create this file.",w);
             }
             catch (IOException e) when ((e.HResult & 0x0000FFFF) == 32)
             {
-                Console.WriteLine("There is a sharing violation.");
+                log.Log("There is a sharing violation.",w);
             }
             catch (IOException e) when ((e.HResult & 0x0000FFFF) == 80)
             {
-                Console.WriteLine("The file already exists.");
+                log.Log("The file already exists.",w);
             }
             catch (IOException e)
             {
-                Console.WriteLine($"An exception occurred:\nError code: " +
-                                  $"{e.HResult & 0x0000FFFF}\nMessage: {e.Message}");
+                log.Log($"An exception occurred:\nError code: " +
+                                  $"{e.HResult & 0x0000FFFF}\nMessage: {e.Message}",w);
             }
             return null;
         }
