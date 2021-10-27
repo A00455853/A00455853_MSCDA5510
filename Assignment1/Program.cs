@@ -14,11 +14,8 @@ namespace Assignment1
         static UInt64 invalidRowCount = 0;
         Logger log;
         string rootfolder;
-
-
         String log_path ;
-        
-         StreamWriter w;
+        StreamWriter w;
         public Program()
         {
 
@@ -39,8 +36,6 @@ namespace Assignment1
             Program pr = new Program();
             Logger log = pr.log;
             StreamWriter w = pr.w;
-
-            //String fileDir = "/Users/nitinkumar/Downloads/SMU Class/Software Dev in Business Envir/assignment-1/Sample Data/";
             string rootfolder = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin"));
             String fileDir = rootfolder+ "Sample Data/";
             Console.WriteLine("root folder "+rootfolder);
@@ -63,11 +58,6 @@ namespace Assignment1
             sw.WriteLine("First Name,Last Name,Street Number,Street,City,Province,Postal Code,Country,Phone Number,email Address,File Date");
 
             pr.walk(fileDir,sw);
-
-            //  sw.WriteLine("This is the first line.");
-            //   sw.WriteLine("This is the second line.");
-            
-            
             sw.Close();
             DateTime end = DateTime.Now;
 
@@ -126,8 +116,7 @@ namespace Assignment1
                     String filedate = filenameSplit[filenameSplit.Length - 4] + "/" + filenameSplit[filenameSplit.Length - 3] +"/"+filenameSplit[filenameSplit.Length - 2];
                     while (!parser.EndOfData)
                     {
-                        //Process row
-                        string[] fields = parser.ReadFields();
+                       string[] fields = parser.ReadFields();
                         if (i == 0)
                         {
                             i++;
@@ -142,8 +131,7 @@ namespace Assignment1
                         validRowCount++;
                         string result = string.Join(",", fields);
                         result = String.Concat(result, ",", filedate);
-                      //  Console.WriteLine(result);
-                        sw.WriteLine(result);
+                       sw.WriteLine(result);
                     }
                 }
 
@@ -263,7 +251,7 @@ namespace Assignment1
             return null;
         }
 
-        public static bool isValidEmail(string emailId) {
+        public  bool isValidEmail(string emailId) {
             string pattern = @"^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$";
             bool isValid = false;
             if (Regex.IsMatch(emailId, pattern))
@@ -276,25 +264,38 @@ namespace Assignment1
             return isValid;
 
         }
-        public static bool isValidAlphaNumeric(string value)
-        {
-            string pattern = "^[a-zA-Z0-9]*$";
-            bool isValid = false;
-            if (Regex.IsMatch(value, pattern))
+            public bool isValidAlphaNumeric(string value)
             {
-                isValid = true;
+                string pattern = "^[a-zA-Z0-9]*$";
+                bool isValid = false;
+                try { 
+                if (Regex.IsMatch(value, pattern))
+                {
+                    isValid = true;
+                }
+                else
+                {
+                    isValid = false;
+                }
             }
-            else
-            {
-                isValid = false;
-            }
-            return isValid;
+                catch (ArgumentNullException)
+                {
+
+                    log.Log("Exception: ArgumentNullException : Null argument has been passed", w);
+                }
+                catch (RegexMatchTimeoutException)
+                {
+
+                    log.Log("Exception: ArgumentNullException : A time-out occurred while pattern matching", w);
+                }
+                return isValid;
             
-        }
-        public static bool isValidNumeric(string value)
+            }
+        public bool isValidNumeric(string value)
         {
             string pattern = @"^-?[0-9][0-9,\.]+$";
             bool isValid = false;
+            try { 
             if (Regex.IsMatch(value, pattern))
             {
                 isValid = true;
@@ -302,21 +303,44 @@ namespace Assignment1
             else
             {
                 isValid = false;
+            }
+        }
+            catch (ArgumentNullException)
+            {
+
+                log.Log("Exception: ArgumentNullException : Null argument has been passed", w);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+
+                log.Log("Exception: ArgumentNullException : A time-out occurred while pattern matching", w);
             }
             return isValid;
             
         }
-        public static bool isValidAlphaString(string value)
+        public  bool isValidAlphaString(string value)
         {
             string pattern = "^[a-zA-Z]*$";
             bool isValid = false;
-            if (Regex.IsMatch(value, pattern))
+            try
             {
-                isValid = true;
+                if (Regex.IsMatch(value, pattern))
+                {
+                    isValid = true;
+                }
+                else
+                {
+                    isValid = false;
+                }
             }
-            else
+            catch (ArgumentNullException) {
+
+                log.Log("Exception: ArgumentNullException : Null argument has been passed",w);
+            }
+            catch (RegexMatchTimeoutException)
             {
-                isValid = false;
+
+                log.Log("Exception: ArgumentNullException : A time-out occurred while pattern matching", w);
             }
             return isValid;
 
