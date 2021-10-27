@@ -18,12 +18,10 @@ namespace Assignment1
         StreamWriter w;
         public Program()
         {
-
             this.log = new Logger();
             this.rootfolder = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin"));
             this.log_path = rootfolder + "logs/log.txt";
             this. w = new StreamWriter(log_path, false);
-           
         }
 
 
@@ -31,74 +29,94 @@ namespace Assignment1
 
         static void Main(string[] args)
         {
-            
-            DateTime start = DateTime.Now;
-            Program pr = new Program();
-            Logger log = pr.log;
-            StreamWriter w = pr.w;
-            string rootfolder = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin"));
-            String fileDir = rootfolder+ "Sample Data/";
-            Console.WriteLine("root folder "+rootfolder);
-
-            String outputDir = rootfolder + "output/";
-            if (!Directory.Exists(outputDir))
+            try
             {
-                Directory.CreateDirectory(outputDir);
+                DateTime start = DateTime.Now;
+                Program pr = new Program();
+                Logger log = pr.log;
+                StreamWriter w = pr.w;
+                string rootfolder = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin"));
+                String fileDir = rootfolder + "Sample Data/";
+                Console.WriteLine("root folder " + rootfolder);
+
+                String outputDir = rootfolder + "output/";
+                if (!Directory.Exists(outputDir))
+                {
+                    Directory.CreateDirectory(outputDir);
+                }
+                String resultFilepath = outputDir + "result.csv";
+                if (File.Exists(resultFilepath))
+                {
+                    File.Delete(resultFilepath);
+                }
+
+
+
+                var sw = OpenStream(resultFilepath);
+                log.Log("writing header into file ", w);
+                sw.WriteLine("First Name,Last Name,Street Number,Street,City,Province,Postal Code,Country,Phone Number,email Address,File Date");
+
+                pr.walk(fileDir, sw);
+                sw.Close();
+                DateTime end = DateTime.Now;
+
+                TimeSpan ts = (end - start);
+                log.Log("total number of total records is " + totalRecordCount, w);
+                log.Log("total number of invalid records is " + invalidRowCount, w);
+                log.Log("total number of valid records is " + validRowCount, w);
+                log.Log("time taken by program is " + ts.TotalMilliseconds + " ms.", w);
+
+                w.Close();
             }
-            String resultFilepath = outputDir+"result.csv";
-            if (File.Exists(resultFilepath))
+            catch (IOException ioe)
             {
-                File.Delete(resultFilepath);
+                Console.WriteLine(ioe.StackTrace);
             }
-            
-            
-
-            var sw = OpenStream(resultFilepath);
-            log.Log("writing header into file ",w);
-            sw.WriteLine("First Name,Last Name,Street Number,Street,City,Province,Postal Code,Country,Phone Number,email Address,File Date");
-
-            pr.walk(fileDir,sw);
-            sw.Close();
-            DateTime end = DateTime.Now;
-
-            TimeSpan ts = (end - start);
-            log.Log("total number of total records is " + totalRecordCount, w);
-            log.Log("total number of invalid records is " + invalidRowCount, w);
-            log.Log("total number of valid records is " + validRowCount, w);
-            log.Log("time taken by program is " + ts.TotalMilliseconds + " ms.",w);
-            
-            w.Close();
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+            }
         }
 
 
 
         public void walk(String path,StreamWriter sw)
         {
-
-            string[] list = Directory.GetDirectories(path);
-
-
-
-            if (list == null) return;
-
-            foreach (string dirpath in list)
+            try
             {
-                if (Directory.Exists(dirpath))
+                string[] list = Directory.GetDirectories(path);
+
+
+
+                if (list == null) return;
+
+                foreach (string dirpath in list)
                 {
-                    walk(dirpath,sw);
-                    Console.WriteLine("Dir:" + dirpath);
+                    if (Directory.Exists(dirpath))
+                    {
+                        walk(dirpath, sw);
+                        Console.WriteLine("Dir:" + dirpath);
+                    }
+                }
+                string[] fileList = Directory.GetFiles(path);
+                foreach (string filepath in fileList)
+                {
+
+                    Console.WriteLine("File:" + filepath);
+                    if (filepath.EndsWith(".csv"))
+                    {
+                        Console.WriteLine("reading file : " + filepath);
+                        parse(filepath, sw);
+                    }
                 }
             }
-            string[] fileList = Directory.GetFiles(path);
-            foreach (string filepath in fileList)
+            catch (IOException ioe)
             {
-
-                Console.WriteLine("File:" + filepath);
-                if (filepath.EndsWith(".csv"))
-                {
-                    Console.WriteLine("reading file : " + filepath);
-                    parse(filepath, sw);
-                }
+                Console.WriteLine(ioe.StackTrace);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
             }
         }
 
@@ -139,6 +157,10 @@ namespace Assignment1
             catch (IOException ioe)
             {
                 Console.WriteLine(ioe.StackTrace);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
             }
 
         }
@@ -251,15 +273,27 @@ namespace Assignment1
             return null;
         }
 
-        public  bool isValidEmail(string emailId) {
+        public bool isValidEmail(string emailId) {
             string pattern = @"^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$";
             bool isValid = false;
-            if (Regex.IsMatch(emailId, pattern))
+           try{
+               if (Regex.IsMatch(emailId, pattern))
             {
-                isValid= true;
+                isValid = true;
             }
             else {
-                isValid= false;
+                isValid = false;
+            }
+        }
+            catch (ArgumentNullException)
+            {
+
+                log.Log("Exception: ArgumentNullException : Null argument has been passed", w);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+
+                log.Log("Exception: ArgumentNullException : A time-out occurred while pattern matching", w);
             }
             return isValid;
 
